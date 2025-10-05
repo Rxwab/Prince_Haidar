@@ -54,12 +54,35 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        
         /* بطاقة المنتج */
         .product-card {
             display: inline-block;
-            width: 300px;
+            width: 300px; /* العرض الثابت للبطاقة */
             margin-right: 1rem; /* مسافة بين البطاقات */
             flex-shrink: 0; /* منع البطاقات من الانكماش */
+        }
+        
+        /* **************************************************** */
+        /* التعديل الرئيسي: لجعل الصورة مربعة (1:1) داخل البطاقة */
+        /* **************************************************** */
+        .image-container {
+            width: 100%;
+            padding-top: 100%; /* لجعل الارتفاع يساوي العرض (مربع) */
+            position: relative;
+            overflow: hidden;
+        }
+        .image-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* يضمن ملء الصورة للمساحة المربعة دون تشويهها */
+            transition: transform 0.3s ease; /* إضافة حركة عند التكبير */
+        }
+        .product-card:hover .image-container img {
+            transform: scale(1.05); /* تكبير بسيط عند التمرير */
         }
 
         /* أنماط الشخصية العائمة - تم تكبيرها إلى 120 بكسل */
@@ -409,14 +432,20 @@
             }
         }
         
-        // دالة مساعدة لبناء بطاقة المنتج (تستخدم فقط لأقسام الكيك والجاتوه)
+        // ****************************************************
+        // التعديل الرئيسي: دالة بناء بطاقة المنتج الجديدة
+        // ****************************************************
         function createProductCard(url) {
             return `
-                <div class="product-card bg-gray-50 rounded-2xl overflow-hidden shadow-lg card-lift transition duration-300 w-full">
-                    <img src="${url}" alt="صورة منتج" class="w-full h-64 object-cover">
+                <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg card-lift transition duration-300 w-full">
+                    
+                    <div class="image-container"> 
+                         <img src="${url}" alt="صورة منتج">
+                    </div>
+
                     <div class="p-4">
-                         <span class="text-xl font-extrabold accent-color block mb-3">للاستفسار عن السعر</span>
-                         <button onclick="openContactModal(event)" class="btn-gold px-4 py-2 text-base font-semibold rounded-lg mt-1 w-full flex items-center justify-center">
+                         <span class="text-xl font-extrabold text-gray-800 block mb-3">للاستفسار عن السعر</span>
+                         <button onclick="openContactModal(event)" class="btn-gold px-4 py-3 text-lg font-semibold rounded-xl mt-1 w-full flex items-center justify-center shadow-md">
                             اتصل للاستفسار
                         </button>
                     </div>
