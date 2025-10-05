@@ -62,7 +62,7 @@
             flex-shrink: 0; /* منع البطاقات من الانكماش */
         }
 
-        /* أنماط الشخصية العائمة - تم تكبيرها إلى 100 بكسل */
+        /* أنماط الشخصية العائمة - تم تكبيرها إلى 120 بكسل */
         #floating-persona {
             position: fixed;
             bottom: 20px;
@@ -70,8 +70,8 @@
             z-index: 50;
         }
         .persona-button {
-            width: 100px; 
-            height: 100px; 
+            width: 120px; 
+            height: 120px; 
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -79,21 +79,25 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             cursor: pointer;
             transition: transform 0.3s ease;
-            background-color: #d4a761; 
+            background-color: #d4a761; /* الإطار الذهبي يبقى */
+            position: relative; 
         }
         .persona-button:hover {
              transform: scale(1.05);
         }
-        /* الصور الجديدة */
+        /* الصور الجديدة - بدون خلفية شفافة */
         .persona-icon {
-            width: 100px; 
-            height: 100px;
+            width: 120px; 
+            height: 120px;
             object-fit: contain; 
             border-radius: 50%; 
+            position: absolute; 
+            top: 0;
+            left: 0;
         }
         .persona-popup {
             position: absolute;
-            bottom: 110px; 
+            bottom: 130px; /* تم تعديل الموضع */
             right: 0; 
             width: 300px;
             background-color: white;
@@ -116,7 +120,7 @@
             content: "";
             position: absolute;
             bottom: -10px;
-            right: 35px; 
+            right: 45px; /* تم تعديل الموضع */
             width: 0;
             height: 0;
             border-left: 10px solid transparent;
@@ -330,16 +334,18 @@
                     </h4>
                 
                 <div id="persona-action-area" class="mb-4">
-                    
                     <p class="text-gray-600 mb-4" id="persona-message">
                         </p>
                     
                     <button id="persona-action-button" onclick="showSpecialOffers()" class="btn-gold px-6 py-2 text-md font-semibold rounded-lg hover:scale-[1.01] transition duration-300">
                          اكتشاف العروض
                     </button>
-                    
-                    <p id="no-offers-message" class="text-red-500 font-semibold hidden">
-                        للأسف، لا توجد عروض خاصة حالياً.
+                </div>
+                
+                <div id="persona-no-offers-area" class="mb-4 hidden">
+                    <img id="popup-sad-icon" src="" alt="وجه حزين" class="w-20 h-20 mx-auto mb-3"> 
+                    <p class="text-red-500 font-bold text-lg">
+                        للأسف، لا يوجد عروض اليوم :(
                     </p>
                 </div>
                 
@@ -376,10 +382,10 @@
         // متغير عالمي لتخزين العروض الخاصة (يحتوي الآن على نصوص)
         let specialOffers = []; 
         
-        // روابط صور التعبيرات
+        // روابط صور التعبيرات الشفافة (تم استخدام نفس الصورة للوجه الحزين)
         const FACE_WELCOME = 'https://i.ibb.co/nszhgpCb/Photoroom.png';
         const FACE_THINKING = 'https://i.ibb.co/bj46v57K/Photoroom.png';
-        const FACE_SAD = 'https://i.ibb.co/JF07Ppnh/Photoroom.png';
+        const FACE_SAD_URL = 'https://i.ibb.co/JF07Ppnh/Photoroom.png'; // الوجه الحزين الذي وفره المستخدم
         const FACE_STATIC = 'https://i.ibb.co/chqhjRxL/Photoroom.png';
         const VISITED_KEY = 'princeHaidarVisited';
 
@@ -446,8 +452,9 @@
             // 1. تعيين صور الأيقونات والشخصية المبدئية
             document.getElementById('persona-icon-welcome').src = FACE_WELCOME;
             document.getElementById('persona-icon-thinking').src = FACE_THINKING;
-            document.getElementById('persona-icon-sad').src = FACE_SAD;
+            document.getElementById('persona-icon-sad').src = FACE_SAD_URL; // الوجه الحزين للزر العائم
             document.getElementById('persona-icon-static').src = FACE_STATIC;
+            document.getElementById('popup-sad-icon').src = FACE_SAD_URL; // الوجه الحزين للوحة المنبثقة
             setActiveIcon('persona-icon-welcome');
 
             dailyContainer.innerHTML = '<p class="text-center text-gray-500 w-full">جاري تحميل الجاتوه...</p>';
@@ -456,13 +463,13 @@
             try {
                 const response = await fetch('./data.json?t=' + new Date().getTime()); 
                 if (!response.ok) {
+                    // إذا فشل التحميل، عاملها كـ "لا يوجد عروض"
                     updatePersonaState(false);
                     return;
                 }
                 const data = await response.json();
                 
                 // 3. تخزين العروض الخاصة (النصية) وتحديث الشخصية
-                // تأكد من أن data.special_offers موجودة ومصفوفة
                 specialOffers = Array.isArray(data.special_offers) ? data.special_offers : [];
                 
                 // 4. عرض قسم الجاتوه (daily_pastries)
@@ -531,26 +538,26 @@
         function showSpecialOffers() {
             closePersonaPopup(); 
             const offersModal = document.getElementById('offers-modal');
-            const offersList = document.getElementById('offers-list'); // تم تغيير الـ ID
+            const offersList = document.getElementById('offers-list'); 
             
             setActiveIcon('persona-icon-static');
             
             offersList.innerHTML = ''; // مسح المحتوى القديم
             
-            // استخدام المتغير الجديد specialOffers
             if (specialOffers.length > 0) {
                  specialOffers.forEach((text, index) => {
                     offersList.innerHTML += createOfferTextElement(text, index);
                 });
                 offersModal.classList.remove('hidden');
             } else {
-                // إذا لم يكن هناك عروض
-                 alert('للأسف، لا توجد عروض خاصة حالياً.');
+                // لن تحدث هذه الحالة منطقياً لأن الزر يكون مخفياً إذا لم يكن هناك عروض
+                 alert('للأسف، لا يوجد عروض خاصة حالياً.');
             }
         }
         
         function closeOffersModal() {
              document.getElementById('offers-modal').classList.add('hidden');
+             // العودة إلى وضع الثبات عند الإغلاق
              setActiveIcon('persona-icon-static');
         }
         
@@ -559,9 +566,9 @@
          * @param {boolean} hasOffers - هل يوجد عروض متاحة في specialOffers؟
          */
         function updatePersonaState(hasOffers) {
+            const actionArea = document.getElementById('persona-action-area');
+            const noOffersArea = document.getElementById('persona-no-offers-area');
             const message = document.getElementById('persona-message');
-            const actionButton = document.getElementById('persona-action-button');
-            const noOffersMsg = document.getElementById('no-offers-message');
             
             const currentActiveIcon = document.querySelector('#persona-main-button img:not(.hidden)');
             if (currentActiveIcon && currentActiveIcon.id === 'persona-icon-static') {
@@ -571,17 +578,15 @@
             if (hasOffers) {
                 // حالة وجود عروض (وجه تفكير)
                 setActiveIcon('persona-icon-thinking');
-                actionButton.classList.remove('hidden');
-                noOffersMsg.classList.add('hidden');
+                actionArea.classList.remove('hidden');
+                noOffersArea.classList.add('hidden');
                 message.textContent = 'اضغط عليَّ لاكتشاف العروض الخاصة لهذا اليوم!';
-                actionButton.textContent = 'اكتشاف العروض';
-                actionButton.onclick = showSpecialOffers; // ربط الزر بالدالة الجديدة
+                
             } else {
                 // حالة عدم وجود عروض (وجه حزين)
                 setActiveIcon('persona-icon-sad');
-                actionButton.classList.add('hidden'); 
-                noOffersMsg.classList.remove('hidden'); 
-                message.textContent = 'يمكنك التواصل معنا للاستفسار عن منتجاتنا الأخرى.';
+                actionArea.classList.add('hidden'); 
+                noOffersArea.classList.remove('hidden'); 
             }
         }
         
