@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم النشر السريع (Prince Haidar)</title>
+    <title>لوحة تحكم النشر والتحكم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -15,37 +15,22 @@
             align-items: center;
             min-height: 100vh;
         }
-        .dark-bg {
-            background-color: #3b2820; /* اللون البني الداكن */
-        }
-        .accent-color {
-            color: #d4a761; /* اللون الذهبي */
-        }
-        .dark-bg-input {
-            background-color: #4c372f;
-        }
-        .btn-publish {
-            background-color: #d4a761;
-            color: #3b2820;
-            transition: all 0.3s ease;
-        }
-        .btn-publish:hover {
-            background-color: #c09450;
-            box-shadow: 0 4px 15px rgba(212, 167, 97, 0.4);
-        }
+        .dark-bg { background-color: #3b2820; } 
+        .accent-color { color: #d4a761; } 
+        .dark-bg-input { background-color: #4c372f; }
+        .btn-publish { background-color: #d4a761; color: #3b2820; transition: all 0.3s ease; }
+        .btn-publish:hover { background-color: #c09450; box-shadow: 0 4px 15px rgba(212, 167, 97, 0.4); }
+        .btn-delete { background-color: #ef4444; color: white; transition: all 0.3s ease; }
+        .btn-delete:hover { background-color: #dc2626; }
+        .section-separator { border-color: #5b4036; }
     </style>
 </head>
 <body>
 
     <div class="dark-bg p-8 rounded-xl shadow-2xl w-full max-w-lg">
-        <h1 class="text-3xl font-bold accent-color mb-6 text-center border-b border-gray-600 pb-3">
-            لوحة تحكم النشر السريع
+        <h1 class="text-3xl font-bold accent-color mb-6 text-center border-b section-separator pb-3">
+            لوحة تحكم النشر والتحكم
         </h1>
-
-        <div class="mb-4">
-            <label for="image-url" class="block text-white text-lg mb-2">رابط الصورة الجديدة (URL):</label>
-            <input type="url" id="image-url" placeholder="https://i.ibb.co/صورة.jpg" class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
-        </div>
 
         <div class="mb-6">
             <label for="github-token" class="block text-white text-lg mb-2">رمز GitHub (Token):</label>
@@ -54,31 +39,64 @@
                    value="" 
                    placeholder="الصق رمز الوصول الشخصي هنا (ghp_...)" 
                    class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
+            <p class="text-xs text-gray-400 mt-1">يُرجى لصقه يدوياً في كل مرة للأمان.</p>
+        </div>
+        
+        <hr class="section-separator mb-6">
+        
+        <h2 class="text-2xl font-bold text-white mb-4">قسم النشر</h2>
+
+        <div class="mb-4">
+            <label for="image-url" class="block text-white text-lg mb-2">رابط الصورة الجديدة (URL):</label>
+            <input type="url" id="image-url" placeholder="https://i.ibb.co/صورة.jpg" class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
+        </div>
+        
+        <div class="mb-6">
+            <label for="category-select" class="block text-white text-lg mb-2">اختر القسم للنشر:</label>
+            <select id="category-select" class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
+                <option value="daily_pastries">1. عرض الجاتوه (المعجنات اليومية)</option>
+                <option value="celebration_cakes">2. كعكات المناسبات والاحتفالات</option>
+            </select>
         </div>
         
         <button onclick="publishNewImage()" class="btn-publish w-full py-3 text-xl font-bold rounded-xl shadow-xl hover:shadow-2xl hover:scale-[1.01] transition duration-300">
-            🚀 نشر الصورة الآن
+            🚀 نشر الصورة الجديدة
+        </button>
+
+        <hr class="section-separator mt-6 mb-6">
+
+        <h2 class="text-2xl font-bold text-white mb-4">قسم الحذف (اختياري)</h2>
+
+        <div class="mb-4">
+            <label for="delete-url" class="block text-white text-lg mb-2">لصق رابط الصورة المراد حذفها:</label>
+            <input type="url" id="delete-url" placeholder="https://i.ibb.co/صورة_للحذف.jpg" class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
+        </div>
+
+        <div class="mb-6">
+            <label for="delete-category-select" class="block text-white text-lg mb-2">اختر القسم الذي تنتمي إليه الصورة:</label>
+            <select id="delete-category-select" class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
+                <option value="daily_pastries">1. عرض الجاتوه</option>
+                <option value="celebration_cakes">2. كعكات المناسبات</option>
+            </select>
+        </div>
+
+        <button onclick="deleteImage()" class="btn-delete w-full py-3 text-xl font-bold rounded-xl shadow-xl hover:scale-[1.01] transition duration-300">
+            🗑️ حذف الصورة
         </button>
         
         <p id="status-message" class="text-center mt-6 text-lg h-8"></p>
     </div>
 
     <script>
-        // *** إعدادات مستودعك (لا تقم بتغييرها إلا إذا غيرت اسم المستخدم أو المستودع) ***
         const GITHUB_USERNAME = 'Rxwab'; 
         const REPO_NAME = 'Prince_Haidar'; 
         const FILE_PATH = 'data.json';
         const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
 
-        /**
-         * تنسيق رسالة الحالة
-         * @param {string} message - الرسالة المراد عرضها
-         * @param {string} type - نوع الرسالة ('success' أو 'error' أو 'info')
-         */
         function updateStatus(message, type) {
             const statusElement = document.getElementById('status-message');
             statusElement.textContent = message;
-            statusElement.className = 'text-center mt-6 text-lg h-8'; // إعادة تعيين
+            statusElement.className = 'text-center mt-6 text-lg h-8'; 
             
             if (type === 'success') {
                 statusElement.classList.add('text-green-400');
@@ -90,78 +108,134 @@
         }
 
         /**
-         * دالة النشر الرئيسية
+         * دالة جلب المحتوى الحالي من GitHub
+         */
+        async function fetchCurrentContent(token) {
+            const response = await fetch(GITHUB_API_URL, {
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3.json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`فشل جلب الملف: ${response.status} - ${errorData.message}`);
+            }
+
+            const fileData = await response.json();
+            
+            return {
+                sha: fileData.sha,
+                content: JSON.parse(atob(fileData.content))
+            };
+        }
+
+        /**
+         * دالة إرسال التعديل إلى GitHub
+         */
+        async function commitChanges(token, sha, newContent, commitMessage) {
+             const newContentBase64 = btoa(JSON.stringify(newContent, null, 2));
+
+            const commitResponse = await fetch(GITHUB_API_URL, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3.json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: commitMessage,
+                    content: newContentBase64,
+                    sha: sha 
+                })
+            });
+
+            if (!commitResponse.ok) {
+                const errorData = await commitResponse.json();
+                throw new Error(`فشل إرسال التعديل: ${commitResponse.status} - ${errorData.message}`);
+            }
+        }
+
+
+        /**
+         * دالة النشر الرئيسية (إضافة صورة)
          */
         async function publishNewImage() {
-            const imageUrl = document.getElementById('image-url').value;
-            const token = document.getElementById('github-token').value;
+            const imageUrl = document.getElementById('image-url').value.trim();
+            const token = document.getElementById('github-token').value.trim();
+            const category = document.getElementById('category-select').value;
 
             if (!imageUrl || !token) {
                 updateStatus('❌ يرجى ملء حقل رابط الصورة وحقل التوكن.', 'error');
                 return;
             }
 
-            updateStatus('⏳ جاري جلب ملف data.json الحالي...', 'info');
+            updateStatus(`⏳ جاري النشر في قسم ${category}...`, 'info');
 
             try {
-                // 1. جلب محتوى الملف الحالي و SHA
-                const response = await fetch(GITHUB_API_URL, {
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3.json'
-                    }
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    updateStatus(`❌ خطأ في النشر: فشل جلب الملف: ${response.status} - ${errorData.message}. تأكد من صحة التوكن والإعدادات.`, 'error');
-                    return;
-                }
-
-                const fileData = await response.json();
-                const currentContentBase64 = fileData.content;
-                const currentSHA = fileData.sha;
-
-                // 2. فك تشفير المحتوى الحالي وإضافة الرابط الجديد
-                const currentContentJson = JSON.parse(atob(currentContentBase64));
-
-                // التحقق من وجود المصفوفة قبل الإضافة (نحن نضيف دائماً إلى published_images)
-                if (!currentContentJson.published_images) {
-                    currentContentJson.published_images = [];
+                const { sha, content } = await fetchCurrentContent(token);
+                
+                // التأكد من وجود المصفوفة في المحتوى، وإضافتها إذا لم تكن موجودة
+                if (!Array.isArray(content[category])) {
+                    content[category] = [];
                 }
                 
-                currentContentJson.published_images.push(imageUrl);
+                // إضافة الصورة الجديدة إلى بداية المصفوفة (الأحدث أولاً)
+                content[category].unshift(imageUrl);
 
-                const newContentBase64 = btoa(JSON.stringify(currentContentJson, null, 2));
-
-                // 3. إرسال طلب التعديل
-                updateStatus('⏳ جاري إرسال التعديل إلى GitHub...', 'info');
-
-                const commitResponse = await fetch(GITHUB_API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3.json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: `Add new image: ${imageUrl.substring(0, 50)}...`, // رسالة التعديل
-                        content: newContentBase64,
-                        sha: currentSHA // يجب تضمين SHA الحالي لتحديث الملف
-                    })
-                });
-
-                if (commitResponse.ok) {
-                    updateStatus('✅ تم النشر بنجاح! سيظهر في الموقع خلال ثوانٍ.', 'success');
-                    document.getElementById('image-url').value = ''; // مسح حقل الرابط
-                } else {
-                    const errorData = await commitResponse.json();
-                    updateStatus(`❌ خطأ في النشر: فشل إرسال التعديل: ${commitResponse.status} - ${errorData.message}.`, 'error');
-                }
+                await commitChanges(token, sha, content, `ADD: New image to ${category}: ${imageUrl.substring(0, 50)}...`);
+                
+                updateStatus('✅ تم النشر بنجاح! سيظهر في الموقع خلال ثوانٍ.', 'success');
+                document.getElementById('image-url').value = ''; 
 
             } catch (error) {
                 console.error('An unexpected error occurred:', error);
-                updateStatus('❌ حدث خطأ غير متوقع. يرجى مراجعة الكونسول.', 'error');
+                updateStatus(`❌ خطأ في النشر: ${error.message}.`, 'error');
+            }
+        }
+        
+        /**
+         * دالة الحذف (حذف صورة)
+         */
+        async function deleteImage() {
+            const deleteUrl = document.getElementById('delete-url').value.trim();
+            const token = document.getElementById('github-token').value.trim();
+            const category = document.getElementById('delete-category-select').value;
+
+            if (!deleteUrl || !token) {
+                updateStatus('❌ يرجى ملء حقل رابط الصورة المراد حذفها وحقل التوكن.', 'error');
+                return;
+            }
+
+            updateStatus(`⏳ جاري البحث عن الصورة وحذفها من قسم ${category}...`, 'info');
+
+            try {
+                const { sha, content } = await fetchCurrentContent(token);
+                
+                if (!Array.isArray(content[category])) {
+                    updateStatus(`❌ خطأ: قسم "${category}" غير موجود في data.json.`, 'error');
+                    return;
+                }
+
+                const initialLength = content[category].length;
+                
+                // تصفية المصفوفة لإزالة الرابط
+                content[category] = content[category].filter(url => url !== deleteUrl);
+
+                if (content[category].length === initialLength) {
+                    updateStatus('❌ لم يتم العثور على هذا الرابط في القسم المحدد.', 'error');
+                    return;
+                }
+
+                await commitChanges(token, sha, content, `DELETE: Image removed from ${category}: ${deleteUrl.substring(0, 50)}...`);
+                
+                updateStatus('✅ تم حذف الصورة بنجاح! ستختفي من الموقع خلال ثوانٍ.', 'success');
+                document.getElementById('delete-url').value = ''; 
+
+            } catch (error) {
+                console.error('An unexpected error occurred:', error);
+                updateStatus(`❌ خطأ في الحذف: ${error.message}.`, 'error');
             }
         }
     </script>
