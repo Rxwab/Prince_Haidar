@@ -3,155 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prince Haidar | لوحة التحكم</title>
+    <title>لوحة تحكم النشر والتحكم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Cairo', sans-serif;
             background-color: #f7f7f7;
-            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .header-bg {
-            background-color: #3b2820; /* بني داكن */
-            color: #d4a761; /* ذهبي */
-        }
-        .btn-primary {
-            background-color: #d4a761; 
-            color: #3b2820;
-            transition: all 0.3s;
-            font-weight: bold;
-        }
-        .btn-primary:hover {
-            background-color: #c09450;
-        }
+        .dark-bg { background-color: #3b2820; } 
+        .accent-color { color: #d4a761; } 
+        .dark-bg-input { background-color: #4c372f; }
+        .btn-publish { background-color: #d4a761; color: #3b2820; transition: all 0.3s ease; }
+        .btn-publish:hover { background-color: #c09450; box-shadow: 0 4px 15px rgba(212, 167, 97, 0.4); }
+        .btn-delete { background-color: #ef4444; color: white; transition: all 0.3s ease; }
+        .btn-delete:hover { background-color: #dc2626; }
+        .section-separator { border-color: #5b4036; }
+        .image-card img { height: 160px; } /* ارتفاع ثابت للصور في لوحة التحكم */
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header class="header-bg p-6 rounded-t-lg mb-8">
-            <h1 class="text-3xl font-bold text-center">لوحة تحكم Prince Haidar</h1>
-            <p class="text-center text-gray-300 mt-2">إدارة صور المنتجات والعروض النصية</p>
-        </header>
+    <div class="dark-bg p-8 rounded-xl shadow-2xl w-full max-w-xl">
+        <h1 class="text-3xl font-bold accent-color mb-6 text-center border-b section-separator pb-3">
+            لوحة تحكم النشر والتحكم
+        </h1>
 
-        <div id="status-message" class="p-4 text-center rounded-lg mb-6 hidden"></div>
-        
-        <div class="bg-gray-100 p-6 rounded-lg mb-8 border border-gray-200">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">إعدادات GitHub</h2>
-            <div class="space-y-4">
-                <div>
-                    <label for="github-token" class="block text-gray-700 font-semibold mb-1">رمز GitHub (Personal Access Token):</label>
-                    <input type="password" id="github-token" placeholder="أدخل رمز التوكن هنا" 
-                           class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a761]">
-                    <p class="text-sm text-gray-500 mt-1">يجب أن يكون للرمز صلاحيات "repo" و "workflow" للعمل.</p>
-                </div>
-            </div>
+        <div class="mb-6">
+            <label for="github-token" class="block text-white text-lg mb-2">رمز GitHub (Token):</label>
+            <input type="password" 
+                   id="github-token" 
+                   value="" 
+                   placeholder="الصق رمز الوصول الشخصي هنا (ghp_...)" 
+                   class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color"
+                   onchange="loadImagesForDeletion()">
+            <p class="text-xs text-gray-400 mt-1">
+                **مهم:** الصق التوكن مرة واحدة، وستظهر الصور والعروض أسفل الصفحة للحذف.
+            </p>
         </div>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            <div class="p-6 border border-gray-300 rounded-lg shadow-md">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">1. نشر صورة جديدة (جاتوه أو كعكة)</h2>
-                
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">نوع المنتج:</label>
-                    <div class="flex space-x-4 space-x-reverse">
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="product-type" value="daily_pastries" checked class="form-radio text-[#d4a761]">
-                            <span class="ml-2 text-gray-700">جاتوه يومي</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="product-type" value="celebration_cakes" class="form-radio text-[#d4a761]">
-                            <span class="ml-2 text-gray-700">كعكة مناسبة</span>
-                        </label>
-                    </div>
-                </div>
+        <hr class="section-separator mb-6">
+        
+        <h2 class="text-2xl font-bold text-white mb-4">قسم النشر (إضافة صورة جديدة)</h2>
 
-                <div class="mb-4">
-                    <label for="image-file" class="block text-gray-700 font-semibold mb-1">اختر ملف الصورة (PNG/JPG):</label>
-                    <input type="file" id="image-file" accept="image/*" 
-                           class="w-full p-3 border border-gray-300 rounded-lg bg-white">
-                </div>
-
-                <div class="mb-6">
-                    <label for="image-commit-message" class="block text-gray-700 font-semibold mb-1">رسالة الالتزام (Commit Message):</label>
-                    <input type="text" id="image-commit-message" value="رفع صورة جديدة"
-                           class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a761]">
-                </div>
-
-                <button onclick="uploadImage()" class="btn-primary w-full p-3 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    نشر الصورة
-                </button>
-            </div>
-            
-            <div class="p-6 border border-gray-300 rounded-lg shadow-md">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">2. نشر عرض نصي جديد</h2>
-                
-                <div class="mb-4">
-                    <label for="offer-text" class="block text-gray-700 font-semibold mb-1">نص العرض الجديد:</label>
-                    <textarea id="offer-text" rows="4" placeholder="اكتب تفاصيل العرض هنا، مثال: خصم 20% على جميع كعكات الشوكولاتة..."
-                              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a761]"></textarea>
-                </div>
-                
-                <div class="mb-6">
-                    <label for="offer-commit-message" class="block text-gray-700 font-semibold mb-1">رسالة الالتزام (Commit Message):</label>
-                    <input type="text" id="offer-commit-message" value="إضافة عرض نصي جديد"
-                           class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a761]">
-                </div>
-
-                <button onclick="publishTextOffer()" class="btn-primary w-full p-3 rounded-lg flex items-center justify-center">
-                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    نشر العرض النصي
-                </button>
-            </div>
+        <div class="mb-4">
+            <label for="image-url" class="block text-white text-lg mb-2">رابط الصورة الجديدة (URL):</label>
+            <input type="url" id="image-url" placeholder="https://i.ibb.co/صورة.jpg" class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
         </div>
         
-        <hr class="my-10 border-gray-300">
+        <div class="mb-6">
+            <label for="category-select" class="block text-white text-lg mb-2">اختر القسم للنشر:</label>
+            <select id="category-select" class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
+                <option value="daily_pastries">1. عرض الجاتوه (المعجنات اليومية)</option>
+                <option value="celebration_cakes">2. كعكات المناسبات والاحتفالات</option>
+            </select>
+        </div>
+        
+        <button onclick="publishNewImage()" class="btn-publish w-full py-3 text-xl font-bold rounded-xl shadow-xl hover:shadow-2xl hover:scale-[1.01] transition duration-300">
+            🚀 نشر الصورة الجديدة
+        </button>
+        
+        <hr class="section-separator mt-6 mb-6">
 
-        <div class="p-6 border border-red-300 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2 text-red-600">3. إدارة (حذف) العروض النصية الحالية</h2>
-            <div id="offers-list-container" class="space-y-4">
-                 <p class="text-gray-500 text-center">جاري تحميل العروض الحالية...</p>
-            </div>
-             <div class="mt-4 text-center">
-                <button onclick="loadCurrentOffers()" class="bg-gray-500 text-white font-semibold p-2 rounded-lg hover:bg-gray-600">
-                    تحديث القائمة
-                </button>
-            </div>
+        <h2 class="text-2xl font-bold text-white mb-4">قسم العروض النصية (نشر)</h2>
+
+        <div class="mb-4">
+            <label for="offer-text" class="block text-white text-lg mb-2">نص العرض الجديد:</label>
+            <textarea id="offer-text" rows="3" placeholder="اكتب تفاصيل العرض هنا، مثال: خصم 20% على جميع كعكات الشوكولاتة..."
+                      class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color"></textarea>
         </div>
 
+        <button onclick="publishTextOffer()" class="btn-publish w-full py-3 text-xl font-bold rounded-xl shadow-xl hover:shadow-2xl hover:scale-[1.01] transition duration-300">
+            📝 نشر العرض النصي
+        </button>
+        
+        <p id="status-message" class="text-center mt-6 text-lg h-8"></p>
 
+        <hr class="section-separator mt-6 mb-6">
+
+        <h2 class="text-2xl font-bold text-white mb-4">قسم الحذف (اضغط للحذف)</h2>
+        
+        <p class="text-gray-400 text-sm mb-4">هذه هي جميع الصور والعروض المنشورة حالياً على الموقع. اضغط على "حذف" لإزالتها.</p>
+
+        <h3 class="text-xl font-bold text-white mb-3 mt-6 border-b border-gray-600 pb-2">عرض الجاتوه (daily_pastries)</h3>
+        <div id="pastries-list-container" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+             <p class="text-white col-span-full text-center">الصق التوكن بالأعلى لتحميل الصور...</p>
+        </div>
+
+        <h3 class="text-xl font-bold text-white mb-3 mt-6 border-b border-gray-600 pb-2">كعكات المناسبات (celebration_cakes)</h3>
+        <div id="cakes-list-container" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            <p class="text-white col-span-full text-center">الصق التوكن بالأعلى لتحميل الصور...</p>
+        </div>
+        
+        <h3 class="text-xl font-bold text-red-400 mb-3 mt-6 border-b border-gray-600 pb-2">العروض النصية الحالية (للحذف)</h3>
+        <div id="offers-list-container" class="space-y-3">
+            <p class="text-white col-span-full text-center">الصق التوكن بالأعلى لتحميل العروض...</p>
+        </div>
     </div>
 
     <script>
-        // **********************************
-        // ******* CONFIGURATION ************
-        // **********************************
-        const REPO_OWNER = 'YOUR_GITHUB_USERNAME'; // غيّر هذا إلى اسم مستخدم GitHub الخاص بك
-        const REPO_NAME = 'YOUR_REPO_NAME';       // غيّر هذا إلى اسم المستودع (Repo) الخاص بك
-        const API_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents`;
-        const DATA_FILE_PATH = 'data.json';
-        const IMAGE_FOLDER_PATH = 'assets/images';
+        const GITHUB_USERNAME = 'Rxwab'; 
+        const REPO_NAME = 'Prince_Haidar'; 
+        const FILE_PATH = 'data.json';
+        const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
 
         // **********************************
-        // ********* HELPER FUNCTIONS *********
+        // ********* UTF-8 FIX FUNCTIONS *********
         // **********************************
-
         /**
          * FIX: Function to safely encode Arabic (UTF-8) content to Base64.
          * This solves the "contains characters outside of the Latin1 range" error.
-         * @param {string} str - The UTF-8 string (e.g., JSON string with Arabic text).
-         * @returns {string} Base64 encoded string.
          */
         function utf8ToBase64(str) {
             return btoa(unescape(encodeURIComponent(str)));
@@ -162,339 +127,349 @@
              return decodeURIComponent(escape(atob(str)));
         }
 
-
-        // Display status message
-        function displayStatus(message, isError = false) {
+        function updateStatus(message, type) {
             const statusElement = document.getElementById('status-message');
             statusElement.textContent = message;
-            statusElement.classList.remove('hidden', 'bg-red-100', 'bg-green-100', 'text-red-700', 'text-green-700');
-            if (isError) {
-                statusElement.classList.add('bg-red-100', 'text-red-700');
+            statusElement.className = 'text-center mt-6 text-lg h-8'; 
+            
+            if (type === 'success') {
+                statusElement.classList.add('text-green-400');
+            } else if (type === 'error') {
+                statusElement.classList.add('text-red-400');
             } else {
-                statusElement.classList.add('bg-green-100', 'text-green-700');
+                 statusElement.classList.add('text-gray-400');
             }
-            // إخفاء الرسالة بعد 8 ثوان
-            setTimeout(() => {
-                statusElement.classList.add('hidden');
-            }, 8000); 
         }
 
-        // Get GitHub headers
-        function getHeaders() {
-            const token = document.getElementById('github-token').value;
-            if (!token) {
-                displayStatus('خطأ: يرجى إدخال رمز GitHub التوكن أولاً.', true);
-                return null;
+        /**
+         * جلب المحتوى الحالي من GitHub
+         * (تم تحديثها لتفك التشفير بأمان للأحرف العربية)
+         */
+        async function fetchCurrentContent(token) {
+            const response = await fetch(GITHUB_API_URL, {
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3.json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                // نمرر رسالة الخطأ لتظهر للمستخدم بوضوح
+                throw new Error(`فشل جلب الملف: ${response.status} - ${errorData.message}`);
             }
+
+            const fileData = await response.json();
+            
             return {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/vnd.github.v3+json'
+                sha: fileData.sha,
+                // استخدام الدالة الآمنة لفك التشفير
+                content: JSON.parse(base64ToUtf8(fileData.content)) 
             };
-        }
-
-        // **********************************
-        // ********* CORE API FUNCTIONS *********
-        // **********************************
-
-        /**
-         * Get the current content and SHA of a file.
-         * @param {string} filePath - Path to the file (e.g., 'data.json').
-         * @returns {Promise<{content: string, sha: string} | null>} 
-         */
-        async function getFileContent(filePath) {
-            const headers = getHeaders();
-            if (!headers) return null;
-
-            try {
-                const response = await fetch(`${API_URL}/${filePath}`, { headers });
-                if (response.status === 404) {
-                     displayStatus(`تحذير: الملف ${filePath} غير موجود. سيتم إنشاؤه.`, false);
-                    return { content: null, sha: null };
-                }
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch file: ${response.statusText}`);
-                }
-                const data = await response.json();
-                
-                // Decode content using the safe function for Arabic characters
-                const utf8Content = base64ToUtf8(data.content); 
-
-                return {
-                    content: utf8Content,
-                    sha: data.sha
-                };
-            } catch (error) {
-                console.error('GitHub API Error:', error);
-                displayStatus(`❌ خطأ في جلب الملف: ${error.message}. تأكد من إعدادات GitHub والتوكن.`, true);
-                return null;
-            }
         }
 
         /**
-         * Publish (Update or Create) a file on GitHub.
-         * @param {string} filePath - Path to the file.
-         * @param {string} content - The file content (Base64 for images, raw string for JSON/text).
-         * @param {string} commitMessage - The commit message.
-         * @param {string | null} sha - The current SHA of the file (required for update).
-         * @param {boolean} isImage - If true, content is already Base64 and SHA is not needed for new file.
-         * @returns {Promise<boolean>} Success status.
+         * إرسال التعديل إلى GitHub
+         * (تم تحديثها لتشفير المحتوى بأمان للأحرف العربية)
          */
-        async function publishContent(filePath, content, commitMessage, sha = null, isImage = false) {
-            const headers = getHeaders();
-            if (!headers) return false;
+        async function commitChanges(token, sha, newContent, commitMessage) {
+             // استخدام الدالة الآمنة للتشفير
+             const newContentBase64 = utf8ToBase64(JSON.stringify(newContent, null, 2));
 
-            let contentBase64;
-            
-            if (isImage) {
-                // Images are already Base64 data URLs, we extract the Base64 part
-                contentBase64 = content.split(',')[1];
-            } else {
-                // Apply the FIX: Encode the UTF-8 string (JSON with Arabic) to Base64 safely
-                contentBase64 = utf8ToBase64(content); 
+            const commitResponse = await fetch(GITHUB_API_URL, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3.json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: commitMessage,
+                    content: newContentBase64,
+                    sha: sha 
+                })
+            });
+
+            if (!commitResponse.ok) {
+                const errorData = await commitResponse.json();
+                throw new Error(`فشل إرسال التعديل: ${commitResponse.status} - ${errorData.message}`);
+            }
+        }
+
+        // ------------------ دوال النشر والحذف للصور ------------------
+        
+        function createDeletionCard(url, category) {
+            return `
+                <div class="image-card bg-[#4c372f] p-3 rounded-lg shadow-lg flex flex-col items-center">
+                    <img src="${url}" alt="صورة منتج" class="w-full h-40 object-cover rounded mb-3">
+                    <button 
+                        onclick="deleteImage('${url}', '${category}')" 
+                        class="btn-delete w-full py-2 text-sm font-bold rounded-lg hover:bg-red-600 transition duration-200">
+                        حذف الصورة 🗑️
+                    </button>
+                </div>
+            `;
+        }
+        
+        /**
+         * دالة النشر الرئيسية (إضافة صورة عبر رابط)
+         */
+        async function publishNewImage() {
+            const imageUrl = document.getElementById('image-url').value.trim();
+            const token = document.getElementById('github-token').value.trim();
+            const category = document.getElementById('category-select').value;
+
+            if (!imageUrl || !token) {
+                updateStatus('❌ يرجى ملء حقل رابط الصورة وحقل التوكن.', 'error');
+                return;
             }
 
-            const body = {
-                message: commitMessage,
-                content: contentBase64,
-                sha: sha 
-            };
-            
-            if (!sha && !isImage) {
-                // If sha is null, it's a new file (create), SHA field is omitted.
-                delete body.sha;
-            }
-            
+            updateStatus(`⏳ جاري النشر في قسم ${category}...`, 'info');
+
             try {
-                const response = await fetch(`${API_URL}/${filePath}`, {
-                    method: sha ? 'PUT' : 'PUT', // Always PUT for update/create
-                    headers: headers,
-                    body: JSON.stringify(body)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || response.statusText);
+                const { sha, content } = await fetchCurrentContent(token);
+                
+                if (!Array.isArray(content[category])) {
+                    content[category] = [];
                 }
                 
-                // Get the updated SHA for subsequent calls if needed
-                const updatedData = await response.json();
-                return { success: true, sha: updatedData.content.sha };
+                // إضافة الصورة الجديدة إلى بداية المصفوفة (الأحدث أولاً)
+                content[category].unshift(imageUrl);
+
+                await commitChanges(token, sha, content, `ADD: New image to ${category}`);
+                
+                updateStatus('✅ تم النشر بنجاح! جاري تحديث القائمة...', 'success');
+                document.getElementById('image-url').value = ''; // مسح حقل الرابط
+                
+                // إعادة تحميل القائمة بعد النشر
+                await loadImagesForDeletion(); 
 
             } catch (error) {
-                console.error('GitHub API Error:', error);
-                displayStatus(`❌ خطأ في النشر: ${error.message}. قد تحتاج لتحديث التوكن أو مراجعة الرسالة.`, true);
-                return { success: false, sha: null };
+                console.error('An unexpected error occurred:', error);
+                updateStatus(`❌ خطأ في النشر: ${error.message}.`, 'error');
             }
         }
 
-        // **********************************
-        // ***** IMAGE PUBLISHING LOGIC *****
-        // **********************************
+        /**
+         * دالة الحذف (حذف صورة بالضغط على الزر)
+         */
+        async function deleteImage(deleteUrl, category) {
+            const token = document.getElementById('github-token').value.trim();
 
-        async function uploadImage() {
-            const fileInput = document.getElementById('image-file');
-            const file = fileInput.files[0];
-            const productType = document.querySelector('input[name="product-type"]:checked').value;
-            const commitMessage = document.getElementById('image-commit-message').value;
-
-            if (!file) {
-                displayStatus('خطأ: يرجى اختيار ملف صورة أولاً.', true);
+            if (!token) {
+                updateStatus('❌ يرجى لصق التوكن في حقل الرمز السري أولاً.', 'error');
                 return;
             }
 
-            if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                displayStatus('خطأ: حجم الملف كبير جداً. يجب أن يكون أقل من 5 ميغابايت.', true);
+            if (!confirm(`هل أنت متأكد من حذف هذه الصورة نهائياً من قسم "${category}"؟`)) {
                 return;
             }
 
-            displayStatus('جاري معالجة الصورة...', false);
+            updateStatus(`⏳ جاري حذف الصورة من قسم ${category}...`, 'info');
 
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-
-            reader.onload = async () => {
-                const base64Data = reader.result;
-                const fileExtension = file.name.split('.').pop();
-                // اسم فريد للصورة
-                const newImageFileName = `${productType}-${Date.now()}.${fileExtension}`; 
-                const imagePath = `${IMAGE_FOLDER_PATH}/${newImageFileName}`;
+            try {
+                const { sha, content } = await fetchCurrentContent(token);
                 
-                try {
-                    // 1. نشر الصورة نفسها كملف منفصل
-                    const publishImageResult = await publishContent(imagePath, base64Data, commitMessage, null, true);
-                    if (!publishImageResult.success) return; 
+                const initialLength = content[category].length;
+                
+                // تصفية المصفوفة لإزالة الرابط المحدد
+                content[category] = content[category].filter(url => url !== deleteUrl);
 
-                    // 2. تحديث ملف data.json
-                    displayStatus('جاري تحديث ملف data.json بإضافة رابط الصورة...', false);
-                    const fileData = await getFileContent(DATA_FILE_PATH);
-                    
-                    let jsonContent;
-                    if (fileData.content) {
-                        jsonContent = JSON.parse(fileData.content);
-                    } else {
-                        // إنشاء ملف JSON جديد إذا لم يكن موجوداً
-                        jsonContent = { daily_pastries: [], celebration_cakes: [], special_offers: [] };
-                    }
-
-                    // إضافة رابط الصورة (المسار الكامل في GitHub)
-                    const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${imagePath}`;
-                    jsonContent[productType].unshift(rawUrl); 
-
-                    const updatedContent = JSON.stringify(jsonContent, null, 4);
-                    
-                    const updateJsonResult = await publishContent(DATA_FILE_PATH, updatedContent, `Add ${productType} image: ${newImageFileName}`, fileData.sha);
-                    
-                    if (updateJsonResult.success) {
-                        displayStatus(`✅ تم نشر الصورة بنجاح وتحديث data.json! الرابط: ${rawUrl}`, false);
-                    } else {
-                        displayStatus('❌ خطأ في تحديث ملف data.json.', true);
-                    }
-
-                } catch (error) {
-                    displayStatus(`❌ خطأ أثناء النشر: ${error.message}`, true);
+                if (content[category].length === initialLength) {
+                    updateStatus('❌ حدث خطأ داخلي. لم يتم العثور على الرابط للحذف.', 'error');
+                    return;
                 }
-            };
 
-            reader.onerror = () => {
-                displayStatus('خطأ في قراءة ملف الصورة.', true);
-            };
+                await commitChanges(token, sha, content, `DELETE: Image removed from ${category} via Admin Panel`);
+                
+                updateStatus('✅ تم حذف الصورة بنجاح! جاري تحديث القائمة...', 'success');
+                
+                // إعادة تحميل القائمة فوراً
+                await loadImagesForDeletion(); 
+
+            } catch (error) {
+                console.error('An unexpected error occurred:', error);
+                updateStatus(`❌ خطأ في الحذف: ${error.message}.`, 'error');
+            }
         }
         
-        // **********************************
-        // **** TEXT OFFER LOGIC (CRUD) *****
-        // **********************************
+        // ------------------ دوال النشر والحذف للعروض النصية ------------------
         
-        // --- 2. نشر عرض نصي جديد ---
+        /**
+         * دالة نشر عرض نصي جديد
+         */
         async function publishTextOffer() {
             const offerText = document.getElementById('offer-text').value.trim();
-            const commitMessage = document.getElementById('offer-commit-message').value.trim() || "إضافة عرض نصي";
+            const token = document.getElementById('github-token').value.trim();
 
-            if (!offerText) {
-                displayStatus('خطأ: يرجى كتابة نص العرض أولاً.', true);
+            if (!offerText || !token) {
+                updateStatus('❌ يرجى كتابة نص العرض ولصق التوكن.', 'error');
                 return;
             }
 
-            displayStatus('جاري جلب ملف data.json وتحديثه...', false);
+            updateStatus('⏳ جاري نشر العرض النصي وتحديث data.json...', 'info');
             
             try {
-                const fileData = await getFileContent(DATA_FILE_PATH);
-                if (!fileData) return;
-
-                let jsonContent;
-                if (fileData.content) {
-                    jsonContent = JSON.parse(fileData.content);
-                } else {
-                    jsonContent = { daily_pastries: [], celebration_cakes: [], special_offers: [] };
+                const { sha, content } = await fetchCurrentContent(token);
+                
+                if (!Array.isArray(content.special_offers)) {
+                    content.special_offers = [];
                 }
 
-                // إضافة العرض الجديد إلى المصفوفة
-                jsonContent.special_offers.unshift(offerText); 
+                // إضافة العرض الجديد إلى بداية المصفوفة (الأحدث أولاً)
+                content.special_offers.unshift(offerText); 
                 
-                const updatedContent = JSON.stringify(jsonContent, null, 4);
+                await commitChanges(token, sha, content, `ADD: New text offer via Admin Panel`);
                 
-                const updateJsonResult = await publishContent(DATA_FILE_PATH, updatedContent, commitMessage, fileData.sha);
-                
-                if (updateJsonResult.success) {
-                    displayStatus('✅ تم نشر العرض النصي بنجاح وتحديث data.json!', false);
-                    document.getElementById('offer-text').value = ''; // مسح الحقل
-                    loadCurrentOffers(); // تحديث قائمة الحذف
-                } else {
-                    displayStatus('❌ خطأ في تحديث ملف data.json.', true);
-                }
+                updateStatus('✅ تم نشر العرض النصي بنجاح!', 'success');
+                document.getElementById('offer-text').value = ''; // مسح الحقل
+                await loadImagesForDeletion(); // تحديث قائمة الحذف (يشمل العروض)
 
             } catch (error) {
-                displayStatus(`❌ خطأ في معالجة JSON: ${error.message}.`, true);
+                updateStatus(`❌ خطأ في النشر: ${error.message}.`, 'error');
             }
         }
         
-        // --- 3. حذف عرض نصي ---
+        /**
+         * دالة حذف عرض نصي
+         */
         async function deleteTextOffer(index) {
-            const commitMessage = `حذف العرض النصي رقم ${index + 1}`;
+            const token = document.getElementById('github-token').value.trim();
+            const container = document.getElementById('offers-list-container');
             
+            if (!token) {
+                updateStatus('❌ يرجى لصق التوكن في حقل الرمز السري أولاً.', 'error');
+                return;
+            }
+
             if (!confirm(`هل أنت متأكد من حذف العرض رقم ${index + 1}؟`)) return;
 
-            displayStatus('جاري جلب ملف data.json وحذف العرض...', false);
+            updateStatus('⏳ جاري جلب ملف data.json وحذف العرض...', 'info');
             
             try {
-                const fileData = await getFileContent(DATA_FILE_PATH);
-                if (!fileData) return;
+                const { sha, content } = await fetchCurrentContent(token);
 
-                let jsonContent = JSON.parse(fileData.content);
-                
-                // التأكد من أن special_offers مصفوفة وغير فارغة
-                if (!Array.isArray(jsonContent.special_offers) || jsonContent.special_offers.length <= index) {
-                    displayStatus('خطأ: لا يمكن العثور على العرض المطلوب حذفه.', true);
+                if (!Array.isArray(content.special_offers) || content.special_offers.length <= index) {
+                    updateStatus('خطأ: لا يمكن العثور على العرض المطلوب حذفه.', 'error');
                     return;
                 }
                 
                 // إزالة العرض من المصفوفة
-                jsonContent.special_offers.splice(index, 1); 
+                content.special_offers.splice(index, 1); 
                 
-                const updatedContent = JSON.stringify(jsonContent, null, 4);
+                await commitChanges(token, sha, content, `DELETE: Text offer #${index + 1}`);
                 
-                const updateJsonResult = await publishContent(DATA_FILE_PATH, updatedContent, commitMessage, fileData.sha);
-                
-                if (updateJsonResult.success) {
-                    displayStatus('✅ تم حذف العرض النصي بنجاح!', false);
-                    loadCurrentOffers(); // تحديث قائمة الحذف
-                } else {
-                    displayStatus('❌ خطأ في حذف العرض من data.json.', true);
-                }
+                updateStatus('✅ تم حذف العرض النصي بنجاح!', 'success');
+                await loadImagesForDeletion(); // تحديث قائمة العروض
 
             } catch (error) {
-                displayStatus(`❌ خطأ في معالجة JSON: ${error.message}.`, true);
+                updateStatus(`❌ خطأ في الحذف: ${error.message}.`, 'error');
             }
         }
-
-        // --- تحميل العروض الحالية لعرضها للحذف ---
-        async function loadCurrentOffers() {
+        
+        /**
+         * دالة إنشاء عنصر العرض النصي للحذف
+         */
+        function createOfferElement(offerText, index) {
+            const element = document.createElement('div');
+            element.className = 'flex items-center justify-between p-3 border border-red-400 bg-red-100 dark-bg-input rounded-lg';
+            element.innerHTML = `
+                <p class="text-white font-semibold flex-grow">${index + 1}. ${offerText}</p>
+                <button onclick="deleteTextOffer(${index})" 
+                        class="btn-delete py-1 px-3 text-sm font-bold rounded-lg transition duration-200 flex items-center flex-shrink-0 ml-4">
+                    حذف العرض 🗑️
+                </button>
+            `;
+            return element;
+        }
+        
+        /**
+         * تحميل العروض النصية الحالية
+         */
+        async function loadCurrentOffers(content) {
             const container = document.getElementById('offers-list-container');
-            container.innerHTML = '<p class="text-gray-500 text-center">جاري تحميل العروض...</p>';
+            const offers = Array.isArray(content.special_offers) ? content.special_offers : [];
+
+            container.innerHTML = ''; 
             
-            const fileData = await getFileContent(DATA_FILE_PATH);
-            if (!fileData || !fileData.content) {
-                container.innerHTML = '<p class="text-gray-500 text-center">لا توجد عروض نصية منشورة حاليًا.</p>';
+            if (offers.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 col-span-full text-center">لا توجد عروض نصية منشورة حاليًا.</p>';
+                return;
+            }
+
+            offers.forEach((offer, index) => {
+                container.appendChild(createOfferElement(offer, index));
+            });
+        }
+
+        // ------------------ دالة التحميل الرئيسية (تجمع الكل) ------------------
+
+        /**
+         * جلب وعرض جميع الصور والعروض للحذف
+         */
+        async function loadImagesForDeletion() {
+            const token = document.getElementById('github-token').value.trim();
+            const pastriesContainer = document.getElementById('pastries-list-container');
+            const cakesContainer = document.getElementById('cakes-list-container');
+            const offersContainer = document.getElementById('offers-list-container');
+            
+            pastriesContainer.innerHTML = '<p class="text-white col-span-full text-center">...جاري التحميل...</p>';
+            cakesContainer.innerHTML = '';
+            offersContainer.innerHTML = '';
+            
+            if (!token) {
+                const message = '<p class="text-red-400 col-span-full text-center">يرجى لصق الرمز السري الصحيح لتحميل المحتوى.</p>';
+                pastriesContainer.innerHTML = message;
+                cakesContainer.innerHTML = '';
+                offersContainer.innerHTML = '';
                 return;
             }
 
             try {
-                const jsonContent = JSON.parse(fileData.content);
-                const offers = Array.isArray(jsonContent.special_offers) ? jsonContent.special_offers : [];
-
-                if (offers.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 text-center">لا توجد عروض نصية منشورة حاليًا.</p>';
-                    return;
+                const { content } = await fetchCurrentContent(token); 
+                
+                // 1. عرض قسم الجاتوه (daily_pastries)
+                const dailyPastries = content.daily_pastries || [];
+                pastriesContainer.innerHTML = '';
+                if (dailyPastries.length > 0) {
+                    dailyPastries.forEach(url => {
+                        pastriesContainer.innerHTML += createDeletionCard(url, 'daily_pastries');
+                    });
+                } else {
+                    pastriesContainer.innerHTML = '<p class="text-gray-400 col-span-full text-center">لا يوجد صور جاتوه حالياً.</p>';
+                }
+                
+                // 2. عرض قسم الكيكات (celebration_cakes)
+                const celebrationCakes = content.celebration_cakes || [];
+                cakesContainer.innerHTML = '';
+                if (celebrationCakes.length > 0) {
+                    celebrationCakes.forEach(url => {
+                        cakesContainer.innerHTML += createDeletionCard(url, 'celebration_cakes');
+                    });
+                } else {
+                    cakesContainer.innerHTML = '<p class="text-gray-400 col-span-full text-center">لا يوجد صور كيكات حالياً.</p>';
                 }
 
-                container.innerHTML = ''; // مسح رسالة "جاري التحميل"
-                offers.forEach((offer, index) => {
-                    // إنشاء عنصر لكل عرض مع زر الحذف
-                    const offerElement = document.createElement('div');
-                    offerElement.className = 'flex items-center justify-between p-3 border border-red-200 bg-red-50 rounded-lg';
-                    offerElement.innerHTML = `
-                        <p class="text-gray-700 font-semibold flex-grow">${index + 1}. ${offer}</p>
-                        <button onclick="deleteTextOffer(${index})" 
-                                class="bg-red-500 text-white text-sm font-bold py-1 px-3 rounded-lg hover:bg-red-600 transition duration-200 flex items-center flex-shrink-0 ml-4">
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            حذف العرض 🗑️
-                        </button>
-                    `;
-                    container.appendChild(offerElement);
-                });
-
+                // 3. عرض العروض النصية
+                await loadCurrentOffers(content);
+                
             } catch (error) {
-                 container.innerHTML = `<p class="text-red-500 text-center">خطأ في تحليل ملف data.json: ${error.message}</p>`;
+                console.error('Error loading content for deletion:', error);
+                const errorMessage = `<p class="text-red-400 col-span-full text-center">خطأ في التحميل: ${error.message}. يرجى التأكد من صلاحية التوكن.</p>`;
+                pastriesContainer.innerHTML = errorMessage;
+                cakesContainer.innerHTML = '';
+                offersContainer.innerHTML = '';
             }
         }
-
 
         // **********************************
         // ******* INITIALIZATION ***********
         // **********************************
         document.addEventListener('DOMContentLoaded', () => {
-             // تحميل قائمة العروض عند فتح الصفحة
-             loadCurrentOffers();
+             // تحميل قائمة المحتوى عند فتح الصفحة في حال كان التوكن محفوظاً في المتصفح
+             if (document.getElementById('github-token').value) {
+                loadImagesForDeletion();
+             }
         });
     </script>
 </body>
