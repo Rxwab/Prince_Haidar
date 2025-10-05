@@ -3,75 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صفحة التسجيل - انضم إلينا</title>
+    <title>Prince Haidar | التسجيل للاستفادة من العروض</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS بسيط لتنسيق الواجهة */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Cairo', sans-serif;
+            background-color: #f7f7f7;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #f4f4f9;
-            margin: 0;
+            min-height: 100vh;
+            padding: 20px;
         }
-        .container {
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 350px;
-            text-align: right;
+        /* اللون البني الداكن (الخلفية) */
+        .dark-bg {
+            background-color: #3b2820;
         }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
+        /* اللون الذهبي/النحاسي (اللمسة الفاخرة) */
+        .accent-color {
+            color: #d4a761;
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
+        .btn-gold {
+            background-color: #d4a761;
+            color: #3b2820;
+            transition: all 0.3s ease;
         }
-        input[type="email"], input[type="tel"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* لضمان أن الحجم يشمل الـ padding */
+        .btn-gold:hover {
+            background-color: #c09450;
+            box-shadow: 0 4px 15px rgba(212, 167, 97, 0.4);
         }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
+        .input-style {
+            background-color: #5b4036;
+            border: 1px solid #7c6054;
             color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
         }
-        button:hover {
-            background-color: #0056b3;
+        .input-style:focus {
+             border-color: #d4a761;
+             box-shadow: 0 0 0 3px rgba(212, 167, 97, 0.5);
         }
     </style>
+    
+    <script>
+        const HOME_PAGE = 'index.html';
+        const STATUS_KEY = 'registrationStatus';
+        
+        // دالة يتم استدعاؤها عند الضغط على "تسجيل"
+        function handleRegistration() {
+            // هنا يجب إضافة كود التحقق من المدخلات وإرسال البيانات إلى الخادم
+            // (في هذا المثال، سنفترض أن التسجيل تم بنجاح)
+            
+            // 1. تعيين حالة التسجيل إلى 'DONE'
+            localStorage.setItem(STATUS_KEY, 'DONE');
+            
+            // 2. التوجيه إلى الصفحة الرئيسية
+            window.location.replace(HOME_PAGE);
+        }
+        
+        // دالة يتم استدعاؤها عند الضغط على "تسجيل لاحقاً"
+        function handleLater() {
+            // 1. تعيين حالة التسجيل إلى 'LATER'
+            localStorage.setItem(STATUS_KEY, 'LATER');
+            
+            // 2. التوجيه إلى الصفحة الرئيسية
+            window.location.replace(HOME_PAGE);
+        }
+        
+        // التحقق عند تحميل الصفحة: إذا كان المستخدم قد سجل بالفعل (DONE أو LATER)، يتم توجيهه مباشرة.
+        document.addEventListener('DOMContentLoaded', function() {
+            const userStatus = localStorage.getItem(STATUS_KEY);
+            if (userStatus === 'DONE' || userStatus === 'LATER') {
+                window.location.replace(HOME_PAGE);
+            }
+        });
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h2>تسجيل الدخول</h2>
+
+    <div class="dark-bg rounded-2xl shadow-2xl p-8 w-full max-w-lg">
         
-        <form id="registrationForm" method="POST" action="[الصق رابط النشر (Web app URL) من Google Apps Script هنا]">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold accent-color mb-3">
+                انضم إلى نادي Prince Haidar
+            </h1>
+            <p class="text-gray-300 text-lg">
+                سجل الآن لتصلك عروضنا الحصرية وتصاميم الكعكات الجديدة مباشرة.
+            </p>
+        </div>
+        
+        <form id="registrationForm" onsubmit="event.preventDefault(); handleRegistration();">
             
-            <label for="email">البريد الإلكتروني:</label>
-            <input type="email" id="email" name="Email" required> 
+            <div class="mb-4">
+                <label for="name" class="block text-white text-sm font-medium mb-2">الاسم كاملاً:</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required 
+                    class="w-full p-3 rounded-lg input-style focus:outline-none"
+                    placeholder="أدخل اسمك الكريم">
+            </div>
             
-            <label for="phone">رقم الهاتف:</label>
-            <input type="tel" id="phone" name="Phone" pattern="[0-9]{10,15}" title="الرجاء إدخال رقم هاتف صحيح" required> 
+            <div class="mb-4">
+                <label for="phone" class="block text-white text-sm font-medium mb-2">رقم الهاتف (واتساب):</label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    required 
+                    class="w-full p-3 rounded-lg input-style focus:outline-none"
+                    placeholder="مثال: 01xxxxxxxxx">
+            </div>
             
-            <button type="submit">تسجيل وانتقال</button>
+            <div class="mb-6">
+                <label for="city" class="block text-white text-sm font-medium mb-2">المدينة/المنطقة:</label>
+                <input 
+                    type="text" 
+                    id="city" 
+                    name="city" 
+                    required 
+                    class="w-full p-3 rounded-lg input-style focus:outline-none"
+                    placeholder="مثال: القاهرة، الجيزة">
+            </div>
+            
+            <button 
+                type="submit" 
+                class="btn-gold w-full py-3 text-xl font-bold rounded-xl shadow-lg hover:scale-[1.01] transition duration-300 mb-4">
+                تسجيل والاستفادة الفورية
+            </button>
         </form>
+        
+        <div class="text-center mt-6">
+            <button 
+                onclick="handleLater()" 
+                class="text-gray-400 hover:accent-color transition duration-200 text-sm font-semibold underline">
+                ليس الآن، سأعود للتسجيل لاحقاً
+            </button>
+        </div>
+        
     </div>
+
 </body>
 </html>
