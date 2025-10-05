@@ -23,11 +23,12 @@
         .btn-delete { background-color: #ef4444; color: white; transition: all 0.3s ease; }
         .btn-delete:hover { background-color: #dc2626; }
         .section-separator { border-color: #5b4036; }
+        .image-card img { height: 160px; } /* ارتفاع ثابت للصور في لوحة التحكم */
     </style>
 </head>
 <body>
 
-    <div class="dark-bg p-8 rounded-xl shadow-2xl w-full max-w-lg">
+    <div class="dark-bg p-8 rounded-xl shadow-2xl w-full max-w-xl">
         <h1 class="text-3xl font-bold accent-color mb-6 text-center border-b section-separator pb-3">
             لوحة تحكم النشر والتحكم
         </h1>
@@ -38,13 +39,16 @@
                    id="github-token" 
                    value="" 
                    placeholder="الصق رمز الوصول الشخصي هنا (ghp_...)" 
-                   class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
-            <p class="text-xs text-gray-400 mt-1">يُرجى لصقه يدوياً في كل مرة للأمان.</p>
+                   class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color"
+                   onchange="loadImagesForDeletion()">
+            <p class="text-xs text-gray-400 mt-1">
+                **مهم:** الصق التوكن مرة واحدة، وستظهر الصور أسفل الصفحة للحذف.
+            </p>
         </div>
         
         <hr class="section-separator mb-6">
         
-        <h2 class="text-2xl font-bold text-white mb-4">قسم النشر</h2>
+        <h2 class="text-2xl font-bold text-white mb-4">قسم النشر (إضافة صورة جديدة)</h2>
 
         <div class="mb-4">
             <label for="image-url" class="block text-white text-lg mb-2">رابط الصورة الجديدة (URL):</label>
@@ -63,28 +67,23 @@
             🚀 نشر الصورة الجديدة
         </button>
 
+        <p id="status-message" class="text-center mt-6 text-lg h-8"></p>
+
         <hr class="section-separator mt-6 mb-6">
 
-        <h2 class="text-2xl font-bold text-white mb-4">قسم الحذف (اختياري)</h2>
-
-        <div class="mb-4">
-            <label for="delete-url" class="block text-white text-lg mb-2">لصق رابط الصورة المراد حذفها:</label>
-            <input type="url" id="delete-url" placeholder="https://i.ibb.co/صورة_للحذف.jpg" class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
-        </div>
-
-        <div class="mb-6">
-            <label for="delete-category-select" class="block text-white text-lg mb-2">اختر القسم الذي تنتمي إليه الصورة:</label>
-            <select id="delete-category-select" class="w-full p-3 rounded-lg dark-bg-input text-white border border-gray-600 focus:ring-accent-color focus:border-accent-color">
-                <option value="daily_pastries">1. عرض الجاتوه</option>
-                <option value="celebration_cakes">2. كعكات المناسبات</option>
-            </select>
-        </div>
-
-        <button onclick="deleteImage()" class="btn-delete w-full py-3 text-xl font-bold rounded-xl shadow-xl hover:scale-[1.01] transition duration-300">
-            🗑️ حذف الصورة
-        </button>
+        <h2 class="text-2xl font-bold text-white mb-4">قسم الحذف (اضغط للحذف)</h2>
         
-        <p id="status-message" class="text-center mt-6 text-lg h-8"></p>
+        <p class="text-gray-400 text-sm mb-4">هذه هي جميع الصور المنشورة حالياً على الموقع. اضغط على "حذف الصورة" لإزالتها.</p>
+
+        <h3 class="text-xl font-bold text-white mb-3 mt-6 border-b border-gray-600 pb-2">عرض الجاتوه (daily_pastries)</h3>
+        <div id="pastries-list-container" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+             <p class="text-white col-span-full text-center">الصق التوكن بالأعلى لتحميل الصور...</p>
+        </div>
+
+        <h3 class="text-xl font-bold text-white mb-3 mt-6 border-b border-gray-600 pb-2">كعكات المناسبات (celebration_cakes)</h3>
+        <div id="cakes-list-container" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            <p class="text-white col-span-full text-center">الصق التوكن بالأعلى لتحميل الصور...</p>
+        </div>
     </div>
 
     <script>
@@ -108,7 +107,7 @@
         }
 
         /**
-         * دالة جلب المحتوى الحالي من GitHub
+         * جلب المحتوى الحالي من GitHub
          */
         async function fetchCurrentContent(token) {
             const response = await fetch(GITHUB_API_URL, {
@@ -132,7 +131,7 @@
         }
 
         /**
-         * دالة إرسال التعديل إلى GitHub
+         * إرسال التعديل إلى GitHub
          */
         async function commitChanges(token, sha, newContent, commitMessage) {
              const newContentBase64 = btoa(JSON.stringify(newContent, null, 2));
@@ -157,9 +156,113 @@
             }
         }
 
-
+        // ------------------ دوال العرض والحذف المرئي ------------------
+        
+        function createDeletionCard(url, category) {
+            return `
+                <div class="image-card bg-[#4c372f] p-3 rounded-lg shadow-lg flex flex-col items-center">
+                    <img src="${url}" alt="صورة منتج" class="w-full h-40 object-cover rounded mb-3">
+                    <button 
+                        onclick="deleteImage('${url}', '${category}')" 
+                        class="btn-delete w-full py-2 text-sm font-bold rounded-lg hover:bg-red-600 transition duration-200">
+                        حذف الصورة 🗑️
+                    </button>
+                </div>
+            `;
+        }
+        
         /**
-         * دالة النشر الرئيسية (إضافة صورة)
+         * جلب وعرض جميع الصور في الأقسام للحذف المرئي
+         */
+        async function loadImagesForDeletion() {
+            const token = document.getElementById('github-token').value.trim();
+            const pastriesContainer = document.getElementById('pastries-list-container');
+            const cakesContainer = document.getElementById('cakes-list-container');
+            
+            pastriesContainer.innerHTML = '<p class="text-white col-span-full text-center">...جاري التحميل...</p>';
+            cakesContainer.innerHTML = '';
+            
+            if (!token) {
+                pastriesContainer.innerHTML = '<p class="text-red-400 col-span-full text-center">يرجى لصق الرمز السري الصحيح لتحميل الصور.</p>';
+                cakesContainer.innerHTML = '';
+                return;
+            }
+
+            try {
+                const { content } = await fetchCurrentContent(token); 
+                
+                // 1. عرض قسم الجاتوه (daily_pastries)
+                pastriesContainer.innerHTML = '';
+                if (content.daily_pastries && content.daily_pastries.length > 0) {
+                    content.daily_pastries.forEach(url => {
+                        pastriesContainer.innerHTML += createDeletionCard(url, 'daily_pastries');
+                    });
+                } else {
+                    pastriesContainer.innerHTML = '<p class="text-gray-400 col-span-full text-center">لا يوجد صور جاتوه حالياً.</p>';
+                }
+                
+                // 2. عرض قسم الكيكات (celebration_cakes)
+                cakesContainer.innerHTML = '';
+                if (content.celebration_cakes && content.celebration_cakes.length > 0) {
+                    content.celebration_cakes.forEach(url => {
+                        cakesContainer.innerHTML += createDeletionCard(url, 'celebration_cakes');
+                    });
+                } else {
+                    cakesContainer.innerHTML = '<p class="text-gray-400 col-span-full text-center">لا يوجد صور كيكات حالياً.</p>';
+                }
+
+            } catch (error) {
+                console.error('Error loading images for deletion:', error);
+                pastriesContainer.innerHTML = `<p class="text-red-400 col-span-full text-center">خطأ في التحميل: ${error.message}. يرجى التأكد من صلاحية التوكن.</p>`;
+                cakesContainer.innerHTML = '';
+            }
+        }
+        
+        /**
+         * دالة الحذف (حذف صورة بالضغط على الزر)
+         */
+        async function deleteImage(deleteUrl, category) {
+            const token = document.getElementById('github-token').value.trim();
+
+            if (!token) {
+                updateStatus('❌ يرجى لصق التوكن في حقل الرمز السري أولاً.', 'error');
+                return;
+            }
+
+            if (!confirm(`هل أنت متأكد من حذف هذه الصورة نهائياً من قسم "${category}"؟`)) {
+                return;
+            }
+
+            updateStatus(`⏳ جاري حذف الصورة من قسم ${category}...`, 'info');
+
+            try {
+                const { sha, content } = await fetchCurrentContent(token);
+                
+                const initialLength = content[category].length;
+                
+                // تصفية المصفوفة لإزالة الرابط المحدد
+                content[category] = content[category].filter(url => url !== deleteUrl);
+
+                if (content[category].length === initialLength) {
+                    updateStatus('❌ حدث خطأ داخلي. لم يتم العثور على الرابط للحذف.', 'error');
+                    return;
+                }
+
+                await commitChanges(token, sha, content, `DELETE: Image removed from ${category} via Admin Panel`);
+                
+                updateStatus('✅ تم حذف الصورة بنجاح! جاري تحديث القائمة...', 'success');
+                
+                // إعادة تحميل القائمة فوراً
+                await loadImagesForDeletion(); 
+
+            } catch (error) {
+                console.error('An unexpected error occurred:', error);
+                updateStatus(`❌ خطأ في الحذف: ${error.message}.`, 'error');
+            }
+        }
+        
+        /**
+         * دالة النشر الرئيسية (إضافة صورة) - لم تتغير عن سابقتها
          */
         async function publishNewImage() {
             const imageUrl = document.getElementById('image-url').value.trim();
@@ -176,7 +279,6 @@
             try {
                 const { sha, content } = await fetchCurrentContent(token);
                 
-                // التأكد من وجود المصفوفة في المحتوى، وإضافتها إذا لم تكن موجودة
                 if (!Array.isArray(content[category])) {
                     content[category] = [];
                 }
@@ -184,58 +286,17 @@
                 // إضافة الصورة الجديدة إلى بداية المصفوفة (الأحدث أولاً)
                 content[category].unshift(imageUrl);
 
-                await commitChanges(token, sha, content, `ADD: New image to ${category}: ${imageUrl.substring(0, 50)}...`);
+                await commitChanges(token, sha, content, `ADD: New image to ${category}`);
                 
-                updateStatus('✅ تم النشر بنجاح! سيظهر في الموقع خلال ثوانٍ.', 'success');
-                document.getElementById('image-url').value = ''; 
+                updateStatus('✅ تم النشر بنجاح! جاري تحديث القائمة...', 'success');
+                document.getElementById('image-url').value = ''; // مسح حقل الرابط
+                
+                // إعادة تحميل القائمة بعد النشر
+                await loadImagesForDeletion(); 
 
             } catch (error) {
                 console.error('An unexpected error occurred:', error);
                 updateStatus(`❌ خطأ في النشر: ${error.message}.`, 'error');
-            }
-        }
-        
-        /**
-         * دالة الحذف (حذف صورة)
-         */
-        async function deleteImage() {
-            const deleteUrl = document.getElementById('delete-url').value.trim();
-            const token = document.getElementById('github-token').value.trim();
-            const category = document.getElementById('delete-category-select').value;
-
-            if (!deleteUrl || !token) {
-                updateStatus('❌ يرجى ملء حقل رابط الصورة المراد حذفها وحقل التوكن.', 'error');
-                return;
-            }
-
-            updateStatus(`⏳ جاري البحث عن الصورة وحذفها من قسم ${category}...`, 'info');
-
-            try {
-                const { sha, content } = await fetchCurrentContent(token);
-                
-                if (!Array.isArray(content[category])) {
-                    updateStatus(`❌ خطأ: قسم "${category}" غير موجود في data.json.`, 'error');
-                    return;
-                }
-
-                const initialLength = content[category].length;
-                
-                // تصفية المصفوفة لإزالة الرابط
-                content[category] = content[category].filter(url => url !== deleteUrl);
-
-                if (content[category].length === initialLength) {
-                    updateStatus('❌ لم يتم العثور على هذا الرابط في القسم المحدد.', 'error');
-                    return;
-                }
-
-                await commitChanges(token, sha, content, `DELETE: Image removed from ${category}: ${deleteUrl.substring(0, 50)}...`);
-                
-                updateStatus('✅ تم حذف الصورة بنجاح! ستختفي من الموقع خلال ثوانٍ.', 'success');
-                document.getElementById('delete-url').value = ''; 
-
-            } catch (error) {
-                console.error('An unexpected error occurred:', error);
-                updateStatus(`❌ خطأ في الحذف: ${error.message}.`, 'error');
             }
         }
     </script>
