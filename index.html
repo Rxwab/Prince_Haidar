@@ -54,12 +54,17 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        /* بطاقة المنتج */
+        /* بطاقة المنتج - تم تعديل العرض ليكون أصغر ومربعاً */
         .product-card {
             display: inline-block;
-            width: 350px; /* تم تعديل العرض لزيادة حجم عرض المنتج */
+            width: 220px; /* العرض الجديد: صغير ومناسب لبطاقات المتاجر */
             margin-right: 1rem; /* مسافة بين البطاقات */
             flex-shrink: 0; /* منع البطاقات من الانكماش */
+        }
+        .product-card img {
+            /* جعل ارتفاع الصورة مطابقاً للعرض ليصبح مربعاً */
+            height: 220px; 
+            object-fit: cover;
         }
 
         /* أنماط الشخصية العائمة الجديدة */
@@ -304,7 +309,7 @@
                     <p class="text-white text-lg mb-3">أو تابعنا على فيسبوك:</p>
                     <a href="https://www.facebook.com/share/1CfDey8RDs/" target="_blank" rel="noopener noreferrer" 
                        class="w-full flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 shadow-lg">
-                        <svg class="w-6 h-6 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.043c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10zm2.707 13.267h-1.636v-3.41h1.636v-1.921h-1.636v-1.127c0-.495.216-.833.856-.833h.844v-1.606h-.844c-1.488 0-2.023.882-2.023 2.15v1.416h-1.341v1.921h1.341v3.41h-1.636c-.035 0-.069.002-.104.002-.036 0-.07-.002-.105-.002v1.93h.105c.035 0 .07-.002.105-.002h.104v.002h2.023v-1.93z"/></svg>
+                        <svg class="w-6 h-6 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.043c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10zm2.707 13.267h-1.636v-3.41h1.636v-1.921h-1.636v-1.127c0-.495.216-.833.856-.833h.844v-1.606h-.844c-1.488 0-2.023.882-2.023 2.15v1.416h-1.341v1.921h1.341v3.41h-1.636c-.035 0-.069.002-.104.002-.036 0-.07-.002-.105-.002v1.93h.105c-.035 0 .07-.002.105-.002h.104v.002h2.023v-1.93z"/></svg>
                         زيارة صفحتنا على فيسبوك
                     </a>
                 </div>
@@ -352,10 +357,10 @@
             <div id="offers-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
                 <div class="bg-white dark-bg rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100">
                     <h3 class="text-3xl font-bold accent-color mb-6 text-center border-b border-gray-600 pb-3">
-                        🔥 عروض الجاتوه اليومية 🔥
+                        🔥 عروض وخصومات اليوم 🔥
                     </h3>
                     
-                    <div id="offers-carousel" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div id="offers-list" class="space-y-4">
                         </div>
 
                     <div class="mt-8 text-center">
@@ -374,9 +379,14 @@
     </div>
     
     <script>
-        // متغير عالمي لتخزين العروض
-        let dailyOffers = [];
-        
+        // قائمة العروض النصية الجديدة (لأنه يجب أن تكون العروض نصوص خصومات وليس صور منتجات)
+        let textOffers = [
+            "🎁 عرض خاص: خصم 20% على كعكة الشوكولاتة الفاخرة اليوم فقط!",
+            "🎉 خصم 15% على جميع أنواع الجاتوه عند طلب 10 قطع أو أكثر.",
+            "🎂 احصل على قطعة جاتوه مجانية مع كل طلب كعكة مناسبات (فقط اليوم!).",
+            "✨ توصيل مجاني على جميع الطلبات التي تزيد عن 500 جنيه (داخل نطاق محدد)."
+        ];
+
         // روابط صور التعبيرات الجديدة
         const FACE_WELCOME = 'https://i.ibb.co/nszhgpCb/Photoroom.png';
         const FACE_THINKING = 'https://i.ibb.co/bj46v57K/Photoroom.png';
@@ -444,26 +454,24 @@
                 // إضافة وقت لضمان تحميل أحدث نسخة من الملف (تجنب التخزين المؤقت)
                 const response = await fetch('./data.json?t=' + new Date().getTime()); 
                 if (!response.ok) {
-                    // تحديث حالة الشخصية لـ "حزين" في حالة فشل التحميل
-                    updatePersonaState(false);
+                    // تحديث حالة الشخصية لـ "حزين" في حالة فشل التحميل أو عدم وجود عروض نصية
+                    updatePersonaState(textOffers.length > 0);
                     return;
                 }
                 const data = await response.json();
                 
-                // 3. تخزين العروض اليومية وتحديث الشخصية
-                dailyOffers = data.daily_pastries || [];
-                
-                // 4. عرض قسم الجاتوه (daily_pastries)
-                if (dailyOffers.length > 0) {
+                // 3. عرض قسم الجاتوه (daily_pastries)
+                const dailyPastries = data.daily_pastries || [];
+                if (dailyPastries.length > 0) {
                     dailyContainer.innerHTML = ''; 
-                    dailyOffers.forEach(url => {
+                    dailyPastries.forEach(url => {
                         dailyContainer.innerHTML += createProductCard(url);
                     });
                 } else {
                     dailyContainer.innerHTML = '<p class="text-center text-gray-500 w-full">لا يوجد جاتوه أو معجنات حاليًا.</p>';
                 }
                 
-                // 5. عرض قسم الكيكات (celebration_cakes)
+                // 4. عرض قسم الكيكات (celebration_cakes)
                 const celebrationCakes = data.celebration_cakes || [];
                 if (celebrationCakes.length > 0) {
                     celebrationContainer.innerHTML = '';
@@ -474,25 +482,26 @@
                     celebrationContainer.innerHTML = '<p class="text-center text-gray-500 w-full">لا توجد كعكات مناسبات حاليًا.</p>';
                 }
                 
-                // 6. التمرير لليمين (RTL)
+                // 5. التمرير لليمين (RTL)
                 const containers = document.querySelectorAll('.horizontal-scroll-container');
                 containers.forEach(container => {
                     container.scrollLeft = container.scrollWidth;
                 });
                 
-                // 7. إظهار النافذة الترحيبية بعد ثانية واحدة
+                // 6. إظهار النافذة الترحيبية بعد ثانية واحدة
                 setTimeout(openPersonaPopup, 1000); 
                 
-                // 8. تحويل الوجه من الترحيب إلى التفكير/الحزن بعد 3 ثوانٍ
+                // 7. تحويل الوجه من الترحيب إلى التفكير/الحزن بناءً على وجود عروض نصية (العروض النصية فقط)
                  setTimeout(() => {
-                    updatePersonaState(dailyOffers.length > 0); 
+                    const hasTextOffers = textOffers.length > 0;
+                    updatePersonaState(hasTextOffers); 
                 }, 3000); 
 
             } catch (error) {
                 console.error('Error loading products:', error);
                 dailyContainer.innerHTML = '<p class="text-center text-red-500 w-full">حدث خطأ أثناء تحميل المنتجات.</p>';
                 celebrationContainer.innerHTML = '';
-                updatePersonaState(false); // حزين في حالة الخطأ
+                updatePersonaState(textOffers.length > 0); // يبقى على حالة العروض النصية
             }
         }
         
@@ -511,19 +520,26 @@
              document.getElementById('persona-popup').classList.toggle('active');
         }
 
+        // دالة عرض العروض النصية (تم تعديلها لتناسب النصوص)
         function showDailyOffers() {
             closePersonaPopup(); 
             const offersModal = document.getElementById('offers-modal');
-            const offersCarousel = document.getElementById('offers-carousel');
+            const offersList = document.getElementById('offers-list'); // تم تغيير المعرف هنا
             
             // تعيين الوجه الثابت بعد أن يضغط المستخدم على اكتشاف العروض
             setActiveIcon('persona-icon-static');
             
-            offersCarousel.innerHTML = ''; // مسح المحتوى القديم
+            offersList.innerHTML = ''; // مسح المحتوى القديم
             
-            if (dailyOffers.length > 0) {
-                 dailyOffers.forEach(url => {
-                    offersCarousel.innerHTML += createProductCard(url);
+            if (textOffers.length > 0) {
+                textOffers.forEach((offer, index) => {
+                    // إنشاء بطاقة عرض نصية
+                    offersList.innerHTML += `
+                        <div class="bg-white p-4 rounded-lg shadow-md border-r-4 border-accent-color flex items-start space-x-2 space-x-reverse">
+                            <span class="text-3xl font-bold accent-color ml-3">${index + 1}</span>
+                            <p class="text-gray-800 text-lg font-medium leading-relaxed">${offer}</p>
+                        </div>
+                    `;
                 });
                 offersModal.classList.remove('hidden');
             } else {
@@ -540,7 +556,7 @@
         
         /**
          * دالة تحديث حالة الشخصية (الأيقونة والنص والزر)
-         * @param {boolean} hasOffers - هل يوجد عروض متاحة؟
+         * @param {boolean} hasOffers - هل يوجد عروض متاحة (نصية)؟
          */
         function updatePersonaState(hasOffers) {
             const message = document.getElementById('persona-message');
